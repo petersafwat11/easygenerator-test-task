@@ -10,6 +10,7 @@ import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LoggerModule } from 'nestjs-pino';
 import type { DestinationStream, Level } from 'pino';
+import { AuthModule } from './auth/auth.module';
 import { SessionGuard } from './auth/session.guard';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { buildLoggerParams } from './common/logging/logger.config';
@@ -54,6 +55,7 @@ export class AppModule implements NestModule {
           }),
         }),
         HealthModule,
+        AuthModule,
       ],
       providers: [
         { provide: APP_FILTER, useClass: AllExceptionsFilter },

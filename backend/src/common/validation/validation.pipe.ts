@@ -17,7 +17,8 @@ export function createValidationPipe(): ValidationPipe {
         undefined,
         errors.map((error) => ({
           field: error.property,
-          messages: Object.values(error.constraints ?? {}),
+          // Rules on one field share a message; report it once.
+          messages: [...new Set(Object.values(error.constraints ?? {}))],
         })),
       ),
   });
