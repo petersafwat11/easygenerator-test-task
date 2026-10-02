@@ -25,7 +25,8 @@ export interface SignUpResult {
 }
 
 export const authApi = {
-  me: () => apiRequest<{ user: User }>('/users/me'),
+  me: (signal?: AbortSignal) =>
+    apiRequest<{ user: User }>('/users/me', { signal }),
 
   signUp: (input: SignUpInput) =>
     apiRequest<SignUpResult>('/auth/signup', { method: 'POST', body: input }),

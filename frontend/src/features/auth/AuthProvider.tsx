@@ -13,15 +13,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const generation = useRef(0)
 
   /** Asks the server for the session and applies the answer unless it went stale. */
-  const check = useCallback(() => {
+  const check = useCallback((signal?: AbortSignal) => {
     const started = ++generation.current
-    void resolveSession().then((next) => {
-      if (started === generation.current) setState(next)
+    void resolveSession(signal).then((next) => {
+      if (next && started === generation.current) setState(next)
     })
   }, [])
 
-  // The initial state is already 'checking'.
-  useEffect(check, [check])
+  // The initial state is already 'checking'. Aborting on cleanup means a
+  // remount (e.g. StrictMode) doesn't leave a duplicate request queued behind it.
+  useEffect(() => {
+    const controller = new AbortController()
+    check(controller.signal)
+    return () => controller.abort()
+  }, [check])
 
   const signIn = useCallback(async (input: SignInInput) => {
     const { user } = await authApi.signIn(input)
@@ -64,11 +69,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
  * 401 is the only answer that means "signed out". Network errors and 5xx mean
  * we don't know, so they become 'unavailable' and never trigger a redirect.
  */
-async function resolveSession(): Promise<AuthState> {
+async function resolveSession(signal?: AbortSignal): Promise<AuthState | null> {
   try {
-    const { user } = await authApi.me()
+    const { user } = await authApi.me(signal)
     return { status: 'authenticated', user }
   } catch (error) {
+    if (signal?.aborted) return null
     if (error instanceof ApiError && error.status === 401) {
       return { status: 'unauthenticated' }
     }
