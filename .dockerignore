@@ -1,0 +1,17 @@
+# Keep the build context small and free of secrets and private files.
+.git
+.github
+.claude
+**/node_modules
+**/dist
+**/coverage
+**/.env
+**/.env.*
+!**/.env.example
+*.pdf
+PLAN*.md
+AI-LOG.md
+CLAUDE.md
+Dockerfile
+.dockerignore
+compose.yaml

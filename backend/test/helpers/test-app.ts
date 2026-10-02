@@ -3,6 +3,7 @@ import { Writable } from 'node:stream';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { createApp } from '../../src/app.factory';
+import type { AppModuleOptions } from '../../src/app.module';
 
 /** Collects every log line the app writes, so tests can assert on redaction. */
 export class LogCapture extends Writable {
@@ -58,8 +59,10 @@ export function startMongo(): Promise<MongoMemoryServer> {
 export async function createTestApp(
   mongod: MongoMemoryServer,
   env: Record<string, string> = {},
+  options: Pick<AppModuleOptions, 'staticRoot'> = {},
 ): Promise<TestApp> {
   const app = await createApp({
+    ...options,
     ignoreEnvFile: true,
     logStream: logs,
     env: {

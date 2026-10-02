@@ -8,8 +8,10 @@ import {
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
+import { join } from 'node:path';
 import type { DestinationStream, Level } from 'pino';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
@@ -31,7 +33,11 @@ export interface AppModuleOptions {
   ignoreEnvFile?: boolean;
   logStream?: DestinationStream;
   logLevel?: Level;
+  /** Built frontend served in production. Defaults to ../frontend/dist next to the backend. */
+  staticRoot?: string;
 }
+
+const DEFAULT_STATIC_ROOT = join(__dirname, '..', '..', 'frontend', 'dist');
 
 @Module({})
 export class AppModule implements NestModule {
@@ -70,6 +76,20 @@ export class AppModule implements NestModule {
                 infer: true,
               }),
             }),
+        }),
+        // Production is one origin: the API and the built SPA. Unknown /api/* paths
+        // stay JSON 404s instead of falling back to index.html.
+        ServeStaticModule.forRootAsync({
+          inject: [ConfigService],
+          useFactory: (config: ConfigService<Env, true>) =>
+            config.get('NODE_ENV', { infer: true }) === 'production'
+              ? [
+                  {
+                    rootPath: options.staticRoot ?? DEFAULT_STATIC_ROOT,
+                    exclude: ['/api/{*path}'],
+                  },
+                ]
+              : [],
         }),
         HealthModule,
         AuthModule,

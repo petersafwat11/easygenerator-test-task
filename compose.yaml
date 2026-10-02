@@ -11,5 +11,27 @@ services:
       timeout: 5s
       retries: 10
 
+  # The production image (API + built SPA on one port): docker compose --profile full up
+  app:
+    profiles: ['full']
+    build:
+      context: .
+      args:
+        GIT_SHA: ${GIT_SHA:-local}
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MONGODB_URI: mongodb://mongo:27017/easygen_auth
+      SESSION_TTL_SECONDS: 28800
+      ALLOWED_ORIGINS: http://localhost:3000
+      TRUST_PROXY_HOPS: 0
+      THROTTLE_GLOBAL_LIMIT: 100
+      THROTTLE_AUTH_LIMIT: 10
+    depends_on:
+      mongo:
+        condition: service_healthy
+
 volumes:
   mongo-data:
