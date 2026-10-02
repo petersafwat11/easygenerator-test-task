@@ -92,5 +92,10 @@
     "mongodbMemoryServer": {
       "version": "8.0.32"
     }
+  },
+  "overrides": {
+    "@nestjs/swagger": {
+      "js-yaml": "5.4.2"
+    }
   }
 }
