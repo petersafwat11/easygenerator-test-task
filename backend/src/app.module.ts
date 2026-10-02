@@ -6,12 +6,11 @@ import {
   RequestMethod,
 } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
+import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LoggerModule } from 'nestjs-pino';
 import type { DestinationStream, Level } from 'pino';
 import { AuthModule } from './auth/auth.module';
-import { SessionGuard } from './auth/session.guard';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { buildLoggerParams } from './common/logging/logger.config';
 import { JsonOnlyMiddleware } from './common/middleware/json-only.middleware';
@@ -59,7 +58,6 @@ export class AppModule implements NestModule {
       ],
       providers: [
         { provide: APP_FILTER, useClass: AllExceptionsFilter },
-        { provide: APP_GUARD, useClass: SessionGuard },
         { provide: APP_PIPE, useFactory: createValidationPipe },
       ],
     };
