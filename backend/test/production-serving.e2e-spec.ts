@@ -11,6 +11,7 @@ import {
   uniqueEmail,
   VALID_PASSWORD,
 } from './helpers/auth-helpers';
+import { EARLY_FAILURES } from './helpers/policy-cases';
 import { createTestApp, startMongo } from './helpers/test-app';
 
 const INDEX_HTML = '<!doctype html><title>SPA</title><div id="root"></div>';
@@ -72,6 +73,19 @@ describe('Production serving (e2e)', () => {
   it('still serves the API', async () => {
     await http().get('/api/health/live').expect(200);
   });
+
+  // The static-file module registers an Express error handler that would turn
+  // any error on an excluded /api path into a 404; ours must answer first.
+  it.each(EARLY_FAILURES)(
+    'keeps the policy answer for %s (status %i), not a 404',
+    async (_label, status, code, send) => {
+      const res = await send(http().post('/api/auth/signin'));
+      expect(res.status).toBe(status);
+      expect(res.headers['content-type']).toMatch(/application\/json/);
+      expect(res.body).toMatchObject({ statusCode: status, code });
+      expect(res.headers['cache-control']).toBe('no-store');
+    },
+  );
 
   it('uses a Secure, __Host- session cookie', async () => {
     const res = await signup(app, {

@@ -13,19 +13,16 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import { join } from 'node:path';
 import type { DestinationStream, Level } from 'pino';
-import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { buildLoggerParams } from './common/logging/logger.config';
 import { JsonOnlyMiddleware } from './common/middleware/json-only.middleware';
-import { NoStoreMiddleware } from './common/middleware/no-store.middleware';
 import { OriginCheckMiddleware } from './common/middleware/origin-check.middleware';
 import { AppThrottlerGuard } from './common/throttling/app-throttler.guard';
 import { throttlerOptions } from './common/throttling/throttling';
 import { createValidationPipe } from './common/validation/validation.pipe';
 import { Env, validateEnv } from './config/env.validation';
 import { HealthModule } from './health/health.module';
-import { UsersController } from './users/users.controller';
 
 export interface AppModuleOptions {
   /** Values applied on top of process.env and .env (tests use this). */
@@ -108,9 +105,5 @@ export class AppModule implements NestModule {
     consumer
       .apply(JsonOnlyMiddleware, OriginCheckMiddleware)
       .forRoutes({ path: '{*path}', method: RequestMethod.ALL });
-    // Responses that carry identity must never be cached, errors included.
-    consumer
-      .apply(NoStoreMiddleware)
-      .forRoutes(AuthController, UsersController);
   }
 }

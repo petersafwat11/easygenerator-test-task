@@ -5,7 +5,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { AppError, FieldErrorDetail } from '../errors/app-error';
 import { isDbConnectivityError } from '../errors/db-errors';
@@ -63,17 +63,47 @@ export class AllExceptionsFilter implements ExceptionFilter {
       );
     }
 
-    if (res.headersSent) return;
-
-    const body: ErrorResponseBody = {
-      statusCode: classified.statusCode,
-      code: classified.code,
-      message: classified.message,
-      ...(classified.details ? { details: classified.details } : {}),
-      requestId,
-    };
-    res.status(classified.statusCode).json(body);
+    sendErrorResponse(res, classified, requestId);
   }
+}
+
+/**
+ * Express-level handler for errors raised before Nest's pipeline, i.e. by the
+ * body parser (malformed JSON → 400, oversized → 413). Registered right after
+ * the parser so it answers first: in production the static-file module adds
+ * its own error handler that would turn any error on an /api path into a 404.
+ */
+export function bodyParserErrorHandler(
+  err: unknown,
+  req: Request & { id?: unknown },
+  res: Response,
+  next: NextFunction,
+): void {
+  if (bodyParserErrorStatus(err) === undefined) {
+    next(err);
+    return;
+  }
+  sendErrorResponse(
+    res,
+    classify(err),
+    typeof req.id === 'string' ? req.id : '',
+  );
+}
+
+function sendErrorResponse(
+  res: Response,
+  classified: Classified,
+  requestId: string,
+): void {
+  if (res.headersSent) return;
+  const body: ErrorResponseBody = {
+    statusCode: classified.statusCode,
+    code: classified.code,
+    message: classified.message,
+    ...(classified.details ? { details: classified.details } : {}),
+    requestId,
+  };
+  res.status(classified.statusCode).json(body);
 }
 
 export function classify(exception: unknown): Classified {

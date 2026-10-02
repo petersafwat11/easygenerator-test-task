@@ -6,6 +6,11 @@ import type { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 import { AppModule, AppModuleOptions } from './app.module';
+import { bodyParserErrorHandler } from './common/filters/all-exceptions.filter';
+import {
+  NO_STORE_PATHS,
+  noStore,
+} from './common/middleware/no-store.middleware';
 import { setupSwagger } from './common/swagger';
 import type { Env } from './config/env.validation';
 
@@ -30,8 +35,11 @@ export async function createApp(
 
   // Runs first so even body-parser failures carry a request id.
   app.use(assignRequestId);
+  // Identity responses are never cacheable, whichever check rejects the request.
+  app.use(NO_STORE_PATHS, noStore);
   app.use(helmet());
   app.useBodyParser('json', { limit: BODY_LIMIT });
+  app.use(bodyParserErrorHandler);
 
   app.setGlobalPrefix('api');
   if (config.get('NODE_ENV', { infer: true }) !== 'production') {

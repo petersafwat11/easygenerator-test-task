@@ -2,6 +2,7 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import type { MongoMemoryServer } from 'mongodb-memory-server';
 import request, { Response } from 'supertest';
 import { HealthCheckService } from '@nestjs/terminus';
+import { EARLY_FAILURES } from './helpers/policy-cases';
 import {
   createTestApp,
   LogCapture,
@@ -76,7 +77,24 @@ describe('HTTP policy (e2e)', () => {
       .set('Content-Type', 'application/json')
       .send('{"email": ');
     expectErrorShape(res, 400, 'VALIDATION_ERROR');
+    expect(res.body).toMatchObject({
+      message: 'Request body is not valid JSON.',
+    });
     expect(res.body).not.toHaveProperty('details');
+  });
+
+  it.each(EARLY_FAILURES)(
+    'marks an identity route rejected for %s as no-store',
+    async (_label, status, code, send) => {
+      const res = await send(http().post('/api/auth/signin'));
+      expectErrorShape(res, status, code);
+      expect(res.headers['cache-control']).toBe('no-store');
+    },
+  );
+
+  it('does not mark other routes no-store', async () => {
+    const res = await http().get('/api/health/live');
+    expect(res.headers['cache-control']).toBeUndefined();
   });
 
   it('rejects a mutation from a foreign Origin with 403', async () => {
