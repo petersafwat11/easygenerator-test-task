@@ -1,0 +1,26 @@
+# Private working files (never published)
+*.pdf
+PLAN*.md
+AI-LOG.md
+CLAUDE.md
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Build & deps
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Test artifacts
+test-results/
+playwright-report/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
