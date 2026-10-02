@@ -21,4 +21,9 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    // Fast refresh is irrelevant for test helpers.
+    files: ['src/test/**', '**/*.test.{ts,tsx}'],
+    rules: { 'react-refresh/only-export-components': 'off' },
+  },
 ])
