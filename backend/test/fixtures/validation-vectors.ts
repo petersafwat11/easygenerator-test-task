@@ -69,4 +69,21 @@ export const EMAIL_VECTORS: (Vector & { normalized?: string })[] = [
   { input: 'no-at-sign', valid: false, note: 'no @' },
   { input: 'user@@mail.com', valid: false, note: 'double @' },
   { input: EMAIL_255, valid: false, note: '255 characters' },
+  { input: 'a!b@example.com', valid: true, note: '! in the local part' },
+  { input: 'a%b@example.com', valid: true, note: '% in the local part' },
+  {
+    input: 'first.last+tag@example.co.uk',
+    valid: true,
+    note: 'dots, +, subdomain',
+  },
+  {
+    input: 'عربي@example.com',
+    valid: false,
+    note: 'non-ASCII local part (internationalized addresses not accepted)',
+  },
+  { input: 'a..b@example.com', valid: false, note: 'consecutive dots' },
+  { input: '.a@example.com', valid: false, note: 'leading dot' },
+  { input: 'a@-example.com', valid: false, note: 'label starts with a hyphen' },
+  { input: 'a@example.c', valid: false, note: 'one-letter TLD' },
+  { input: 'a@example.123', valid: false, note: 'numeric TLD' },
 ];

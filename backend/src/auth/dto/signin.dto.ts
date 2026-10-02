@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, Matches, MaxLength } from 'class-validator';
+import { IsString, Matches, MaxLength } from 'class-validator';
 import {
   EMAIL_MAX_LENGTH,
+  EMAIL_PATTERN,
   MESSAGES,
   Normalize,
   SIGNIN_PASSWORD_PATTERN,
@@ -12,7 +13,7 @@ export class SigninDto {
   @Normalize({ lowercase: true })
   @IsString({ message: MESSAGES.email })
   @MaxLength(EMAIL_MAX_LENGTH, { message: MESSAGES.email })
-  @IsEmail({ require_tld: true }, { message: MESSAGES.email })
+  @Matches(EMAIL_PATTERN, { message: MESSAGES.email })
   email!: string;
 
   @ApiProperty({

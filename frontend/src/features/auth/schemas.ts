@@ -17,6 +17,14 @@ const SIGNIN_PASSWORD_PATTERN = /^[\s\S]{1,128}$/u
 
 export const EMAIL_MAX_LENGTH = 254
 
+/**
+ * The same explicit shape as the backend, so an address the API accepts is
+ * always accepted here: ASCII dot-atom local part, domain labels, letters-only
+ * TLD. No internationalized addresses. Overall length is checked separately.
+ */
+export const EMAIL_PATTERN =
+  /^[A-Za-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[A-Za-z0-9!#$%&'*+\/=?^_`{|}~-]+)*@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}$/
+
 export const MESSAGES = {
   email: 'Enter a valid email address',
   name: 'Name must be 3–50 characters',
@@ -29,7 +37,7 @@ const email = z
   .trim()
   .toLowerCase()
   .max(EMAIL_MAX_LENGTH, MESSAGES.email)
-  .pipe(z.email(MESSAGES.email))
+  .regex(EMAIL_PATTERN, MESSAGES.email)
 
 export const signUpSchema = z.object({
   email,

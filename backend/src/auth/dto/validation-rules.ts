@@ -20,6 +20,15 @@ export const SIGNIN_PASSWORD_PATTERN = /^[\s\S]{1,128}$/u;
 
 export const EMAIL_MAX_LENGTH = 254;
 
+/**
+ * One explicit email shape on both sides, so an address the API accepts is always
+ * accepted by the forms: an ASCII dot-atom local part, then domain labels (no
+ * leading or trailing hyphen) ending in a letters-only TLD. Internationalized
+ * addresses are not accepted. Overall length is checked separately (254).
+ */
+export const EMAIL_PATTERN =
+  /^[A-Za-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[A-Za-z0-9!#$%&'*+\/=?^_`{|}~-]+)*@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}$/;
+
 export const MESSAGES = {
   email: 'Enter a valid email address',
   name: 'Name must be 3–50 characters',
