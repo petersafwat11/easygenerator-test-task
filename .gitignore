@@ -24,3 +24,6 @@ playwright-report/
 Thumbs.db
 .vscode/
 .idea/
+
+# Local agent tooling
+.claude/
