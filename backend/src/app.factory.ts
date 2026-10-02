@@ -6,6 +6,7 @@ import type { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 import { AppModule, AppModuleOptions } from './app.module';
+import { setupSwagger } from './common/swagger';
 import type { Env } from './config/env.validation';
 
 export const BODY_LIMIT = '10kb';
@@ -33,6 +34,9 @@ export async function createApp(
   app.useBodyParser('json', { limit: BODY_LIMIT });
 
   app.setGlobalPrefix('api');
+  if (config.get('NODE_ENV', { infer: true }) !== 'production') {
+    setupSwagger(app, config.get('GIT_SHA', { infer: true }));
+  }
   app.enableShutdownHooks();
   return app;
 }

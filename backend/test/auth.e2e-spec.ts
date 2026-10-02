@@ -320,4 +320,21 @@ describe('Sessions: signin, /users/me, logout (e2e)', () => {
       await me(cookie).expect(200);
     });
   });
+
+  describe('Cache-Control', () => {
+    it('marks auth and /me responses no-store, including errors', async () => {
+      const { email, password, cookie } = await registered();
+      const responses = [
+        await signin({ email, password }),
+        await signin({ email, password: 'wrong123!' }),
+        await signup(app, { email, name: 'Ada', password }),
+        await me(cookie),
+        await me(),
+        await logout(cookie),
+      ];
+      for (const res of responses) {
+        expect(res.headers['cache-control']).toBe('no-store');
+      }
+    });
+  });
 });

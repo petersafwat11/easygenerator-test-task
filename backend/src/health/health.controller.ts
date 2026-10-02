@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ApiTags } from '@nestjs/swagger';
 import {
   HealthCheck,
   HealthCheckResult,
@@ -9,6 +10,7 @@ import {
 import { Public } from '../common/decorators/public.decorator';
 import type { Env } from '../config/env.validation';
 
+@ApiTags('health')
 @Public()
 @Controller('health')
 export class HealthController {
