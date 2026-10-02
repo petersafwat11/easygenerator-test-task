@@ -16,9 +16,9 @@ function isAuthThrottled(context: ExecutionContext): boolean {
 }
 
 /**
- * Two in-memory limits per IP: every route counts against `global`, and
- * credential endpoints also against `auth`. Limits come from env so tests can
- * raise them; a single instance makes in-memory storage sufficient.
+ * In-memory buckets per IP and handler: each handler has a `global` bucket,
+ * and credential handlers also have an `auth` bucket. Limits come from env so
+ * tests can raise them; a single instance makes in-memory storage sufficient.
  */
 export function throttlerOptions(
   env: Pick<Env, 'THROTTLE_GLOBAL_LIMIT' | 'THROTTLE_AUTH_LIMIT'>,

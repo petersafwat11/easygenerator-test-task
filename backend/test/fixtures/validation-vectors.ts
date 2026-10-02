@@ -1,5 +1,5 @@
 /*
- * Shared validation vectors from PLAN-FINAL §4. The frontend suite uses the same
+ * Shared validation vectors from docs/design.md §3. The frontend suite uses the same
  * list verbatim (frontend/src/features/auth/validation-vectors.ts).
  */
 

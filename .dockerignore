@@ -1,7 +1,6 @@
 # Keep the build context small and free of secrets and private files.
-.git
-.github
-.claude
+# Only backend/ and frontend/ are needed to build the image.
+.*
 **/node_modules
 **/dist
 **/coverage
@@ -9,9 +8,7 @@
 **/.env.*
 !**/.env.example
 *.pdf
-PLAN*.md
-AI-LOG.md
-CLAUDE.md
+*.md
+docs
 Dockerfile
-.dockerignore
 compose.yaml

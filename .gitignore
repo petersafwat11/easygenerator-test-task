@@ -1,8 +1,8 @@
-# Private working files (never published)
+# Private working notes (never published): the brief, plans and logs
 *.pdf
-PLAN*.md
-AI-LOG.md
-CLAUDE.md
+/*.md
+!/README.md
+!/AI.md
 
 # Env files
 .env
@@ -25,5 +25,6 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Local agent tooling
-.claude/
+# Local tool directories (agents, browser automation); .github is tracked
+/.*/
+!/.github/
